@@ -17,3 +17,6 @@ temp/
 temp.yaml
 bin
 **/config/config.yaml
+*.log
+
+app/dogyun/config/config.yaml
