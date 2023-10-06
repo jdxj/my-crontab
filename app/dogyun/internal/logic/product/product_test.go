@@ -4,9 +4,6 @@ import (
 	"context"
 	"fmt"
 	"testing"
-
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/glog"
 )
 
 func TestSContent_Notify(t *testing.T) {
@@ -18,10 +15,12 @@ func TestSContent_Notify(t *testing.T) {
 }
 
 func TestSContent_GetProducts(t *testing.T) {
-	g.Log().SetLevel(glog.LEVEL_DEBU)
-	res, err := getProducts(context.Background(), g.Client(), 13)
+	s := newSContent()
+	res, err := s.GetProducts(context.Background())
 	if err != nil {
-		t.Fatalf("err: %s\n", err)
+		t.Fatalf("%s\n", err)
 	}
-	fmt.Println(res)
+	for _, v := range res {
+		fmt.Printf("%+v\n", v)
+	}
 }

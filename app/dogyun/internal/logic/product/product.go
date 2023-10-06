@@ -6,6 +6,7 @@ import (
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/gogf/gf/v2/container/gset"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/gclient"
 
@@ -38,6 +39,11 @@ func (s *sContent) GetProducts(ctx context.Context) ([]*model.Product, error) {
 	if err != nil {
 		return nil, err
 	}
+	pg, err := g.Cfg().Get(ctx, "dogyun.product-group")
+	if err != nil {
+		return nil, err
+	}
+	pgSet := gset.NewIntSetFrom(pg.Ints())
 
 	httpClient := g.Client().
 		SetHeaderMap(consts.Header).
@@ -45,27 +51,23 @@ func (s *sContent) GetProducts(ctx context.Context) ([]*model.Product, error) {
 		SetHeader("x-csrf-token", xct.String()).
 		Timeout(time.Second * 30)
 
-	var res []*model.Product
-	for _, pg := range consts.ProductGroups {
-		p, err := getProducts(ctx, httpClient, pg)
-		if err != nil {
-			return nil, err
-		}
+	ps, err := getProducts(ctx, httpClient)
+	if err != nil {
+		return nil, err
+	}
 
-		res = append(res, p...)
+	var res []*model.Product
+	for _, p := range ps {
+		if !pgSet.Contains(p.Group.Id) {
+			continue
+		}
+		res = append(res, p)
 	}
 	return res, nil
 }
 
-func getProducts(ctx context.Context, c *gclient.Client, productGroup int) ([]*model.Product, error) {
-	if productGroup <= 0 {
-		g.Log().Warningf(ctx, "invalid productGroup: %d", productGroup)
-		return nil, nil
-	}
-
-	res, err := c.Post(ctx, consts.Target, g.Map{
-		"productGroup": productGroup,
-	})
+func getProducts(ctx context.Context, c *gclient.Client) ([]*model.Product, error) {
+	res, err := c.Post(ctx, consts.Target, nil)
 	if err != nil {
 		return nil, err
 	}

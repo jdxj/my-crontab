@@ -24,11 +24,4 @@ var (
 		"user-agent":         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
 		"x-requested-with":   "XMLHttpRequest",
 	}
-
-	ProductGroups = []int{
-		13, // HK-MG
-		1,  // HK-CLD
-		10, // JP
-		5,  // KR
-	}
 )
