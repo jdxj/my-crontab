@@ -8,7 +8,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/gclient"
-	"github.com/gogf/gf/v2/util/gconv"
 
 	"my-crontab/app/dogyun/internal/consts"
 	"my-crontab/app/dogyun/internal/model"
@@ -64,14 +63,16 @@ func getProducts(ctx context.Context, c *gclient.Client, productGroup int) ([]*m
 		return nil, nil
 	}
 
-	res, err := c.PostForm(ctx, consts.Target, map[string]string{
-		"productGroup": gconv.String(productGroup),
+	res, err := c.Post(ctx, consts.Target, g.Map{
+		"productGroup": productGroup,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	defer func() {
+		g.Log().Debugf(ctx, "req/res info: %s", res.Raw())
+
 		err := res.Close()
 		if err != nil {
 			g.Log().Warningf(ctx, "close http response err: %s", err)
