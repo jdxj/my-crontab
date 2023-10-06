@@ -5,5 +5,5 @@
 package logic
 
 import (
-	_ "my-crontab/app/dogyun/internal/logic/vps"
+	_ "my-crontab/app/dogyun/internal/logic/product"
 )

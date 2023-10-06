@@ -19,16 +19,6 @@ var (
 		Name:   "dogyun",
 		Usage:  "start crontab job",
 		Strict: true,
-		Arguments: []gcmd.Argument{
-			{
-				Name:  "product-group",
-				Short: "p",
-			},
-			{
-				Name:  "name",
-				Short: "n",
-			},
-		},
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			g.Log().Info(ctx, `cron job start`)
 
@@ -37,26 +27,27 @@ var (
 				return err
 			}
 
-			in := &model.HasVPSInput{
-				ProductGroup: parser.GetOpt("p").Int(),
-				Name:         parser.GetOpt("n").String(),
-			}
-
 			pattern := fmt.Sprintf("@every %s", every.String())
 			_, err = gcron.Add(ctx, pattern, func(ctx context.Context) {
-				res, err := service.Content().HasVPS(ctx, in)
+				changed, err := service.Content().GetChangedProducts(ctx)
 				if err != nil {
-					g.Log().Errorf(ctx, "call hasVPS err: %s", err)
+					g.Log().Errorf(ctx, "get changed products err: %s", err)
+					return
+				}
+				if len(changed) == 0 {
+					g.Log().Infof(ctx, "no changed products")
 					return
 				}
 
-				if !res.Has {
-					return
+				in := &model.NotifyInput{}
+				for i, p := range changed {
+					in.Text += fmt.Sprintf("name: %s, has: %t", p.Name, !p.SoldOut)
+					if i != len(changed)-1 {
+						in.Text += "\n"
+					}
 				}
 
-				err = service.Content().Notify(ctx, &model.NotifyInput{
-					Text: fmt.Sprintf("%s中了", in.Name),
-				})
+				err = service.Content().Notify(ctx, in)
 				if err != nil {
 					g.Log().Errorf(ctx, "call notify err: %s", err)
 					return

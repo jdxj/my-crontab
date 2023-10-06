@@ -21,7 +21,7 @@ type Prices struct {
 	SEMIANNUALLY float64 `json:"SEMI_ANNUALLY,omitempty"`
 }
 
-type VPS struct {
+type Product struct {
 	Id       int    `json:"id"`
 	Name     string `json:"name"`
 	CpuCores int    `json:"cpuCores"`
@@ -48,15 +48,6 @@ type VPS struct {
 	// important
 	SoldOut bool   `json:"soldOut"`
 	Prices  Prices `json:"prices"`
-}
-
-type HasVPSInput struct {
-	ProductGroup int
-	Name         string
-}
-
-type HasVPSOutput struct {
-	Has bool
 }
 
 type NotifyInput struct {
